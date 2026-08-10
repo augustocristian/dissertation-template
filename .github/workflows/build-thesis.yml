@@ -1,0 +1,146 @@
+name: Build thesis PDF
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint LaTeX (chktex)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install chktex
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends chktex
+
+      - name: Run chktex on content files
+        run: |
+          # Only the files a student actually edits. uniovitfg.cls and
+          # extracommands.sty are the design system: their heavy macro use
+          # (\@-prefixed commands, deliberate spacing, etc.) trips chktex's
+          # prose heuristics by design and isn't actionable feedback.
+          #
+          # This is advisory only: chktex flags style/typography nits, not
+          # correctness, so findings are surfaced but never fail the build.
+          #
+          # -n48 mutes rule 48 (ConTeXt command-name collision): it false-
+          # positives on \startmainmatter (this template's own command,
+          # matched via a "mainmatter" substring) and, separately, its
+          # per-file %chktex-file/%chktex suppression comments don't
+          # reliably apply once more than one file is linted in the same
+          # invocation (confirmed empirically) -- muting it globally here
+          # sidesteps both, and the rule has no real value on a pure-LaTeX
+          # (non-ConTeXt) project anyway.
+          chktex -q -n48 -f$'%f\t%l\t%c\t%k\t%n\t%m\n' \
+            main.tex abstract.tex declaration.tex acknowledgements.tex \
+            chapters/*.tex sheets/*.tex \
+            > chktex-report.tsv || true
+
+          {
+            echo "### chktex findings (style/typography — advisory, never fails the build)"
+            echo
+            if [ -s chktex-report.tsv ]; then
+              echo "| File | Line | Col | Kind | Rule | Message |"
+              echo "|---|---|---|---|---|---|"
+              awk -F'\t' '{
+                msg = $6
+                gsub(/\|/, "\\" "|", msg)
+                printf("| %s | %s | %s | %s | %s | %s |\n", $1, $2, $3, $4, $5, msg)
+              }' chktex-report.tsv
+            else
+              echo "No issues found."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Inline annotations too, so findings show up directly on the
+          # commit/PR "Files changed" and Checks views.
+          while IFS=$'\t' read -r file line col kind rule msg; do
+            echo "::warning file=${file},line=${line},col=${col}::[chktex ${rule}] ${msg}"
+          done < chktex-report.tsv
+
+          echo "chktex: $(wc -l < chktex-report.tsv) finding(s) — see the job summary for a readable table."
+
+      - name: Upload chktex report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chktex-report
+          path: chktex-report.tsv
+          if-no-files-found: ignore
+          retention-days: 30
+
+  build:
+    name: Compile thesis PDF (XeLaTeX + biber)
+    runs-on: ubuntu-latest
+    container:
+      image: texlive/texlive:latest-full
+    steps:
+      - name: Install git (for actions/checkout)
+        run: apt-get update && apt-get install -y --no-install-recommends git
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile with XeLaTeX + biber
+        # Mirrors the "known-good full rebuild" sequence documented in CLAUDE.md.
+        run: |
+          rm -f main.aux main.bcf main.bbl main.blg main.log main.toc main.lof main.lot main.lol main.out main.run.xml main.synctex.gz
+          xelatex -interaction=nonstopmode -halt-on-error main.tex
+          biber main
+          xelatex -interaction=nonstopmode -halt-on-error main.tex
+          xelatex -interaction=nonstopmode -halt-on-error main.tex
+
+      - name: Check main.log for errors and unresolved references
+        run: |
+          if grep -n '^! ' main.log; then
+            echo "::error::main.log contains LaTeX errors (see above)."
+            exit 1
+          fi
+          if grep -qE "LaTeX Warning: (Reference|Citation) .* undefined" main.log; then
+            echo "::error::Undefined references/citations remain after 3 compile passes:"
+            grep -E "LaTeX Warning: (Reference|Citation) .* undefined" main.log
+            exit 1
+          fi
+          if grep -qE "Rerun to get|Label\(s\) may have changed" main.log; then
+            echo "::warning::main.log is still asking for another compile pass; a real submission build may need a 4th xelatex pass."
+          fi
+
+      - name: Summarize box warnings (informational, non-blocking)
+        if: always()
+        run: |
+          over=$(grep -cF 'Overfull \hbox' main.log || true)
+          under=$(grep -cF 'Underfull \hbox' main.log || true)
+          {
+            echo "### Box warnings (cosmetic — expected from the right-ragged chapter titles)"
+            echo "- Overfull hboxes: ${over:-0}"
+            echo "- Underfull hboxes: ${under:-0}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload compiled PDF
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-pdf
+          path: main.pdf
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build logs (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            main.log
+            main.blg
+          if-no-files-found: warn
+          retention-days: 30

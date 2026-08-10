@@ -1,0 +1,69 @@
+%% ============================================================================
+%% extracommands.sty
+%% Draft-review helpers for the TFG/TFM template: a small circled step
+%% number (\step{n}) and per-reviewer inline comment/TODO commands.
+%%
+%% Comments and TODOs are hidden by default -- a plain
+%% \usepackage{extracommands} compiles a clean thesis with no draft
+%% clutter, even if \augusto{...}/\TODO{...}/etc. calls are still in the
+%% source. Turn them on with package options while actually
+%% writing/reviewing:
+%%   \usepackage[showcomments,showtodos]{extracommands}
+%% and drop the options (or the whole \usepackage line) again before the
+%% final submission compile.
+%% ============================================================================
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{extracommands}[2026/08/10 v1.1 Draft-review helper commands]
+
+\RequirePackage{tikz}
+\RequirePackage{pifont}
+\RequirePackage{xcolor}
+\RequirePackage{marginnote}
+\RequirePackage{etoolbox}
+
+% Small circled step number, e.g. \step{1}, \step{2}...
+\newcommand{\step}[1]{{\footnotesize
+\tikz[baseline=(char.base)]{\node[shape=circle,draw,inner sep=0.5pt] (char)
+{#1};}}}
+
+%% ---------------------------------------------------------------------------
+%% Show/hide switches, one for TODOs and one for named-reviewer comments,
+%% set independently via package options (see header note above).
+%% ---------------------------------------------------------------------------
+\newbool{showtodos}
+\newbool{showcomments}
+\DeclareOption{showtodos}{\booltrue{showtodos}}
+\DeclareOption{showcomments}{\booltrue{showcomments}}
+\ProcessOptions\relax
+
+% Marks the point of a TODO/comment with a small colored dingbat in the
+% margin, plus a real \footnote carrying the full text (colored, labeled
+% with who wrote it). When the matching \newbool switch is off, expands
+% to nothing -- a hidden TODO/comment doesn't even reserve a footnote
+% number, so toggling the switch can't shift footnote numbering around.
+% #1=color #2=marker symbol #3=label #4=text
+\newcommand{\todomarker}[4]{%
+  \ifbool{showtodos}{%
+    \marginnote{\textcolor{#1}{#2}}%
+    \footnote{\textcolor{#1}{\itshape\scriptsize\textbf{\sffamily\underline{#3}:~}#4}}%
+  }{}%
+}
+\newcommand{\notemarker}[4]{%
+  \ifbool{showcomments}{%
+    \marginnote{\textcolor{#1}{#2}}%
+    \footnote{\textcolor{#1}{\itshape\scriptsize\textbf{\sffamily\underline{#3}:~}#4}}%
+  }{}%
+}
+
+% Generic pending-work marker: \TODO{still need to write the results section}
+\newcommand{\TODO}[1]{\todomarker{blue}{\ding{46}}{TODO}{#1}}
+
+% Per-reviewer comment commands -- one per person who might annotate the
+% draft (the academic tutor, a second tutor, the student), each with its
+% own color/symbol so comments stay distinguishable at a glance.
+% Usage: \augusto{some comment text}
+\newcommand{\augusto}[1]{\notemarker{red}{\ding{105}}{Augusto}{#1}}
+\newcommand{\tutortwo}[1]{\notemarker{blue}{\ding{72}}{Tutor 2}{#1}}
+\newcommand{\student}[1]{\notemarker{orange}{\ding{118}}{Estudiante}{#1}}
+
+\endinput

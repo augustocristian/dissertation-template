@@ -1,0 +1,146 @@
+\chapter{\bilingual{Planificación y Gestión}{Planning and Management}}
+
+\section{\bilingual{Planificación del Proyecto}{Project Planning}}
+
+\subsection{\bilingual{Identificación de los interesados}{Stakeholder Identification}}
+
+\bilingual{%
+  Describe aquí a los interesados (\emph{stakeholders}) del proyecto:
+  quiénes son, qué papel desempeñan y qué expectativas tienen.
+}{%
+  Describe here the project's stakeholders: who they are, what role they
+  play and what expectations they have.
+}
+
+\subsection{OBS \bilingual{y}{and} PBS}
+
+\bilingual{%
+  Estructura organizativa (OBS) y estructura de descomposición del
+  producto (PBS) del proyecto.
+}{%
+  Organizational breakdown structure (OBS) and product breakdown
+  structure (PBS) of the project.
+}
+
+\subsection{\bilingual{Planificación inicial. WBS}{Initial Planning. WBS}}
+
+\bilingual{%
+  Estructura de descomposición del trabajo (WBS) y planificación temporal
+  inicial, siguiendo las prácticas habituales de gestión de proyectos
+  software~\cite{sommerville2016}.
+}{%
+  Work breakdown structure (WBS) and initial time planning, following
+  standard software project management practices~\cite{sommerville2016}.
+}
+
+\begin{table}[htbp]
+  \centering
+  % NOTE: \bilingual is NOT used directly inside \caption -- hyperref
+  % chokes on raw \if-conditionals stored in \newlabel for figure/table
+  % captions, corrupting the .aux file on the next compilation pass. Pick
+  % the whole caption text with a plain \ifthesisenglish instead.
+  \ifthesisenglish %chktex 1
+    \caption{Initial planning: Sprints}
+  \else
+    \caption{Planificación inicial: Sprints}
+  \fi%
+  \label{tab:initial-planning}
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \tableheaderfont \bilingual{Sprint}{Sprint} & \bilingual{Duración}{Duration} & \bilingual{Objetivo principal}{Main goal} \\ %chktex 1
+    \midrule
+    Sprint 1 & \bilingual{2 semanas}{2 weeks} & \bilingual{Análisis de requisitos}{Requirements analysis} \\
+    Sprint 2 & \bilingual{2 semanas}{2 weeks} & \bilingual{Diseño de la arquitectura}{Architecture design} \\
+    Sprint 3 & \bilingual{3 semanas}{3 weeks} & \bilingual{Implementación del núcleo}{Core implementation} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{\bilingual{Riesgos}{Risks}}
+
+\bilingual{%
+  Identificación y análisis inicial de riesgos del proyecto. Cada riesgo
+  se documenta en su propia ficha, como en el ejemplo siguiente (ver
+  \texttt{sheets/risk\_sheet\_example.tex}):
+}{%
+  Identification and initial analysis of project risks. Each risk is
+  documented in its own sheet, as in the example below (see
+  \texttt{sheets/risk\_sheet\_example.tex}):
+}
+
+\input{sheets/risk_sheet_example}
+
+\subsection{\bilingual{Presupuesto inicial}{Initial Budget}}
+
+\bilingual{%
+  Estimación inicial de costes (personal, hardware, software, otros).
+}{%
+  Initial cost estimate (staff, hardware, software, other).
+}
+
+\section{\bilingual{Ejecución del Proyecto}{Project Execution}}
+
+\subsection{\bilingual{Plan de seguimiento de la planificación}{Schedule Monitoring Plan}}
+
+\bilingual{%
+  Mecanismos de seguimiento (reuniones, herramientas, indicadores)
+  utilizados durante la ejecución.
+}{%
+  Monitoring mechanisms (meetings, tools, indicators) used during
+  execution.
+}
+
+\subsection{\bilingual{Bitácora de incidencias del Proyecto}{Project Issue Log}}
+
+\bilingual{%
+  Registro de incidencias relevantes surgidas durante el desarrollo.
+}{%
+  Log of relevant incidents that arose during development.
+}
+
+\subsection{\bilingual{Riesgos}{Risks}}
+
+\bilingual{%
+  Actualización del análisis de riesgos durante la ejecución del
+  proyecto.
+}{%
+  Updated risk analysis during project execution.
+}
+
+\section{\bilingual{Cierre del proyecto}{Project Closure}}
+
+\subsection{\bilingual{Planificación final}{Final Planning}}
+
+\bilingual{%
+  Comparativa entre la planificación inicial y la ejecución real del
+  proyecto.
+}{%
+  Comparison between the initial plan and the actual execution of the
+  project.
+}
+
+\subsection{\bilingual{Informe final de riesgos}{Final Risk Report}}
+
+\bilingual{%
+  Balance final de los riesgos identificados y su materialización.
+}{%
+  Final assessment of the identified risks and how they materialized.
+}
+
+\subsection{\bilingual{Presupuesto final de costes}{Final Cost Budget}}
+
+\bilingual{%
+  Comparativa entre el presupuesto inicial y el coste final del
+  proyecto.
+}{%
+  Comparison between the initial budget and the final cost of the
+  project.
+}
+
+\subsection{\bilingual{Informe de lecciones aprendidas}{Lessons Learned Report}}
+
+\bilingual{%
+  Principales lecciones aprendidas durante el desarrollo del proyecto.
+}{%
+  Main lessons learned during the development of the project.
+}

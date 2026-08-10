@@ -1,0 +1,62 @@
+# ---- LaTeX build artifacts -------------------------------------------------
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lol
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.synctex(busy)
+*.toc
+*.xdv
+*.nav
+*.snm
+*.vrb
+*.figlist
+*.makefile
+*.fmt
+*.dvi
+*.ps
+
+# biber / bibtex
+*.bcf-SAVE-ERROR
+*-blx.bib
+biber.log
+
+# ---- Build output -----------------------------------------------------------
+*.pdf
+!img/**/*.pdf
+
+# ---- Editor / OS ------------------------------------------------------------
+*~
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
+*.swp
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.vsix
+
+# IntelliJ / JetBrains (e.g. TeXiFy-IDEA)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# TeXstudio / TeXworks project files
+*.tex-autosave
+*.texlock

@@ -1,0 +1,20 @@
+%% ============================================================================
+%% Example "sheet" (ficha): one risk from the risk register.
+%% Included from chapters/ch02_planning_and_management.tex with \input.
+%% Copy this file for every extra risk/WBS package/stakeholder sheet you
+%% need, and \input{sheets/<newfile>} it from the relevant chapter.
+%% ============================================================================
+\begin{sheet}{\bilingual{Ficha de riesgo R1}{Risk sheet R1}}
+  \sheetfield{\bilingual{Identificador}{ID}}{R1}
+  \sheetfield{\bilingual{Descripción}{Description}}{%
+    \bilingual{Retraso en la entrega de un componente desarrollado por un
+    proveedor externo.}{Delay in the delivery of a component developed by
+    an external provider.}}
+  \sheetfield{\bilingual{Probabilidad}{Probability}}{\bilingual{Media}{Medium}}
+  \sheetfield{\bilingual{Impacto}{Impact}}{\bilingual{Alto}{High}}
+  \sheetfield{\bilingual{Plan de mitigación}{Mitigation plan}}{%
+    \bilingual{Identificar un proveedor alternativo y reservar un margen
+    de tiempo en la planificación.}{Identify an alternative provider and
+    reserve a time buffer in the schedule.}}
+  \sheetfield{\bilingual{Responsable}{Owner}}{\bilingual{Jefe de proyecto}{Project manager}}
+\end{sheet}

@@ -1,0 +1,120 @@
+% !TeX program = xelatex
+% !BIB program = biber
+%% ============================================================================
+%% Universidad de Oviedo BSc/MSc thesis (TFG/TFM) template
+%% Escuela Politécnica de Ingeniería de Gijón
+%%
+%% Compile with XeLaTeX (required for the Aptos / Aptos Display fonts):
+%%   xelatex main.tex
+%%   biber main
+%%   xelatex main.tex
+%%   xelatex main.tex
+%% ============================================================================
+\documentclass{uniovitfg}
+
+% Draft-review helpers (\step, \TODO, \augusto, \tutortwo, \student -- see
+% extracommands.sty). Comments/TODOs are shown because of the
+% [showcomments,showtodos] options below; drop those two options (or the
+% whole line) before compiling the final submission copy.
+\usepackage[showcomments,showtodos]{extracommands}
+
+% ------------------------------------------------------------------
+% 1) DOCUMENT LANGUAGE
+%    Controls whether chapter/section titles and front-matter text are
+%    typeset in Spanish or in English (see \bilingual in every chapter
+%    file). Also switches babel and all running chrome (Contents, List
+%    of Figures, "Chapter", figure/table captions...).
+% ------------------------------------------------------------------
+\thesislanguage{spanish}   % or: \thesislanguage{english}
+
+% ------------------------------------------------------------------
+% 2) THESIS METADATA — this is the only section you should need to edit
+% ------------------------------------------------------------------
+\title{Título del TFG}
+\author{Nombre Apellido Apellido}
+
+% Academic supervisor(s) -- shown with the university logo to the left.
+\tutor{D. Cristian Augusto}
+\tutor{D./Dña. Nombre Apellido Apellido}
+
+% Company/industry supervisor(s) -- only for internship-based theses.
+% \companylogo{...} sets the logo shown to their left, and also replaces
+% the UNIOVI logo in the page header (top-left) with the company's own.
+\companytutor{D./Dña. Nombre Apellido Apellido}
+\companylogo{img/logos/company_logo_placeholder.png} % reemplaza con el logo real si procede
+
+% \degreepreset{...} sets \school (cover text), \schoollogo (header logo,
+% top-right on every page), \degree and (for a Máster) \thesistype/
+% \thesistypeabbrev together, all translated to match \thesislanguage{}
+% above. Pick ONE:
+%   \degreepreset{it}       -- Grado en Ing. Informática en Tecnologías
+%                               de la Información (EPI Gijón) -- default
+%   \degreepreset{datos}    -- Grado en Ciencia e Ingeniería de Datos
+%                               (EPI Gijón)
+%   \degreepreset{master}   -- Máster en Ingeniería Informática
+%                               (EPI Gijón, sets TFM instead of TFG)
+%   \degreepreset{software} -- Grado en Ingeniería Informática del
+%                               Software (Escuela de Ingeniería
+%                               Informática)
+% Call \school{}/\schoollogo{}/\degree{}/\thesistype{}/\thesistypeabbrev{}
+% again afterward to override just one of them, e.g. for a degree not
+% listed above -- or \schoolpreset{epigijon|eii} alone if you only need
+% the school (logo + default degree) and want to set \degree{} yourself.
+\degreepreset{it}
+
+\thesisdate{julio de 2026}     % month and year shown on the cover page
+\city{Gijón}                   % city for the statement of authorship
+\academicyear{2025--2026}      % academic year
+\dni{XXXXXXXXX}                % student ID number
+
+\addbibresource{bibliography.bib}
+
+% hyperref's colorlinks (and friends) only take effect if set here, in the
+% preamble -- setting them via \hypersetup after \begin{document} is too
+% late (hyperref has already applied its own AtBeginDocument setup by
+% then) and silently produces black links instead of teal ones, alongside
+% a "Option `colorlinks' has already been used" warning.
+\makeatletter
+\hypersetup{
+  pdftitle={\@title},
+  pdfauthor={\@author},
+  colorlinks=true,
+  linkcolor=uoTeal,
+  citecolor=uoTeal,
+  urlcolor=uoTeal,
+}
+\makeatother
+
+% ------------------------------------------------------------------
+% 3) DOCUMENT BODY
+% ------------------------------------------------------------------
+\begin{document}
+
+% --- Cover page ----------------------------------------------------
+\maketitle
+
+% --- Preliminary pages (header shown, no footer) --------------------
+\input{declaration}
+\input{acknowledgements}
+
+% --- Front-matter lists (header and footer shown) -------------------
+\frontmatterlist{\tableofcontents}
+\frontmatterlist{\listoffigures}
+\frontmatterlist{\listoftables}
+\frontmatterlist{\lstlistoflistings}
+
+% --- Abstract (own page; resets page numbering to 1) ----------------
+\input{abstract}
+
+% --- Main body -------------------------------------------------------
+\input{chapters/ch01_general_description}
+\input{chapters/ch02_planning_and_management}
+\input{chapters/ch03_user_requirements}
+\input{chapters/ch04_system_requirements}
+\input{chapters/ch05_design}
+\input{chapters/ch06_implementation}
+\input{chapters/ch07_manuals}
+\input{chapters/ch08_conclusions}
+\input{chapters/ch09_appendices}
+
+\end{document}

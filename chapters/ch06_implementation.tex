@@ -1,0 +1,50 @@
+\chapter{\bilingual{Implementación}{Implementation}}
+
+\section{\bilingual{Estructura de la aplicación}{Application Structure}}
+
+\bilingual{%
+  Describe aquí la organización del código fuente (módulos, capas,
+  paquetes\ldots).
+}{%
+  Describe here how the source code is organized (modules, layers,
+  packages\ldots).
+}
+
+% See ch02's note: \bilingual must not be used directly inside a caption
+% (here, the lstlisting "caption=" key), so resolve it to a plain macro
+% first.
+\ifthesisenglish\def\ExampleListingCaption{Example code snippet}\else\def\ExampleListingCaption{Ejemplo de fragmento de código}\fi
+\begin{lstlisting}[language=Python, caption={\ExampleListingCaption}, label={lst:example}]
+def average(values):
+    """Return the arithmetic mean of a list of values."""
+    return sum(values) / len(values)
+\end{lstlisting}
+
+\bilingual{%
+  Como se observa en el Código~\ref{lst:example}, \ldots
+}{%
+  As shown in Listing~\ref{lst:example}, \ldots
+}
+
+\bilingual{%
+  El mismo ejemplo, ahora en Java, importado directamente desde su propio
+  fichero fuente en \texttt{snippets/} (en vez de escribirlo dentro del
+  \texttt{.tex}) con \texttt{\textbackslash{}lstinputlisting}:
+}{%
+  The same example, now in Java, imported directly from its own source
+  file in \texttt{snippets/} (instead of being typed inside the
+  \texttt{.tex} file) with \texttt{\textbackslash{}lstinputlisting}:
+}
+
+\ifthesisenglish\def\JavaListingCaption{Example code snippet (Java)}\else\def\JavaListingCaption{Ejemplo de fragmento de código (Java)}\fi
+\lstinputlisting[language=Java, caption={\JavaListingCaption}, label={lst:example-java}]{snippets/Average.java}
+
+\section{\bilingual{Implementación de las pruebas}{Test Implementation}}
+
+\bilingual{%
+  Describe aquí cómo se han implementado las pruebas definidas en el
+  capítulo de diseño.
+}{%
+  Describe here how the tests defined in the design chapter were
+  implemented.
+}
