@@ -11,78 +11,19 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Rolling release that always carries the PDF built from the default branch.
+  # The README badge links here.
+  LATEST_TAG: latest-pdf
+
 jobs:
-  lint:
-    name: Lint LaTeX (chktex)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Install chktex
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends chktex
-
-      - name: Run chktex on content files
-        run: |
-          # Only the files a student actually edits. uniovitfg.cls and
-          # extracommands.sty are the design system: their heavy macro use
-          # (\@-prefixed commands, deliberate spacing, etc.) trips chktex's
-          # prose heuristics by design and isn't actionable feedback.
-          #
-          # This is advisory only: chktex flags style/typography nits, not
-          # correctness, so findings are surfaced but never fail the build.
-          #
-          # -n48 mutes rule 48 (ConTeXt command-name collision): it false-
-          # positives on \startmainmatter (this template's own command,
-          # matched via a "mainmatter" substring) and, separately, its
-          # per-file %chktex-file/%chktex suppression comments don't
-          # reliably apply once more than one file is linted in the same
-          # invocation (confirmed empirically) -- muting it globally here
-          # sidesteps both, and the rule has no real value on a pure-LaTeX
-          # (non-ConTeXt) project anyway.
-          chktex -q -n48 -f$'%f\t%l\t%c\t%k\t%n\t%m\n' \
-            main.tex abstract.tex declaration.tex acknowledgements.tex \
-            chapters/*.tex sheets/*.tex \
-            > chktex-report.tsv || true
-
-          {
-            echo "### chktex findings (style/typography — advisory, never fails the build)"
-            echo
-            if [ -s chktex-report.tsv ]; then
-              echo "| File | Line | Col | Kind | Rule | Message |"
-              echo "|---|---|---|---|---|---|"
-              awk -F'\t' '{
-                msg = $6
-                gsub(/\|/, "\\" "|", msg)
-                printf("| %s | %s | %s | %s | %s | %s |\n", $1, $2, $3, $4, $5, msg)
-              }' chktex-report.tsv
-            else
-              echo "No issues found."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          # Inline annotations too, so findings show up directly on the
-          # commit/PR "Files changed" and Checks views.
-          while IFS=$'\t' read -r file line col kind rule msg; do
-            echo "::warning file=${file},line=${line},col=${col}::[chktex ${rule}] ${msg}"
-          done < chktex-report.tsv
-
-          echo "chktex: $(wc -l < chktex-report.tsv) finding(s) — see the job summary for a readable table."
-
-      - name: Upload chktex report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: chktex-report
-          path: chktex-report.tsv
-          if-no-files-found: ignore
-          retention-days: 30
-
   build:
     name: Compile thesis PDF (XeLaTeX + biber)
     runs-on: ubuntu-latest
     container:
       image: texlive/texlive:latest-full
+    outputs:
+      pdf_name: ${{ steps.name.outputs.pdf_name }}
     steps:
       - name: Install git (for actions/checkout)
         run: apt-get update && apt-get install -y --no-install-recommends git
@@ -110,37 +51,63 @@ jobs:
             grep -E "LaTeX Warning: (Reference|Citation) .* undefined" main.log
             exit 1
           fi
-          if grep -qE "Rerun to get|Label\(s\) may have changed" main.log; then
-            echo "::warning::main.log is still asking for another compile pass; a real submission build may need a 4th xelatex pass."
-          fi
 
-      - name: Summarize box warnings (informational, non-blocking)
-        if: always()
+      - name: Name the PDF
+        id: name
+        # {year}-{school}-{TFG|TFM}-{SurnameName}-{branch}-{commitid}.pdf
+        # Year/school/type/author come from main.tex (see the script header).
+        env:
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
-          over=$(grep -cF 'Overfull \hbox' main.log || true)
-          under=$(grep -cF 'Underfull \hbox' main.log || true)
-          {
-            echo "### Box warnings (cosmetic — expected from the right-ragged chapter titles)"
-            echo "- Overfull hboxes: ${over:-0}"
-            echo "- Underfull hboxes: ${under:-0}"
-          } >> "$GITHUB_STEP_SUMMARY"
+          name=$(bash .github/scripts/pdf-name.sh main.tex)
+          cp main.pdf "$name"
+          echo "pdf_name=$name" >> "$GITHUB_OUTPUT"
+          echo "### PDF: \`$name\`" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload compiled PDF
-        if: success()
+      - name: Upload PDF
+        id: upload
         uses: actions/upload-artifact@v7
         with:
           name: thesis-pdf
-          path: main.pdf
+          path: ${{ steps.name.outputs.pdf_name }}
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload build logs (for debugging)
-        if: always()
-        uses: actions/upload-artifact@v7
+      - name: Link the PDF in the run summary
+        run: |
+          echo "Download: ${{ steps.upload.outputs.artifact-url }}" >> "$GITHUB_STEP_SUMMARY"
+
+  # Publishes the default branch's PDF as the rolling "latest-pdf" release, so
+  # there is one stable, login-free URL to link to (artifacts need a login and
+  # expire). Other branches get no release: their PDF is only the artifact above.
+  publish:
+    name: Publish latest PDF release
+    needs: build
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-latest-pdf
+      cancel-in-progress: false
+    steps:
+      - name: Download PDF
+        uses: actions/download-artifact@v8
         with:
-          name: build-logs
-          path: |
-            main.log
-            main.blg
-          if-no-files-found: warn
-          retention-days: 30
+          name: thesis-pdf
+
+      - name: Replace the rolling release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PDF: ${{ needs.build.outputs.pdf_name }}
+        run: |
+          # Delete + recreate (instead of editing) so the tag moves to this commit.
+          # The tag stays fixed (stable URL); the title and asset carry the full name.
+          gh release delete "$LATEST_TAG" --cleanup-tag --yes || true
+          gh release create "$LATEST_TAG" "$PDF" \
+            --target "$GITHUB_SHA" \
+            --title "${PDF%.pdf}" \
+            --notes "File: \`${PDF}\`. Built automatically from \`${GITHUB_REF_NAME}\` @ \`${GITHUB_SHA::7}\`; this release is replaced on every push to \`${GITHUB_REF_NAME}\`."
+          echo "### Published: https://github.com/${GH_REPO}/releases/tag/${LATEST_TAG}" >> "$GITHUB_STEP_SUMMARY"
