@@ -47,8 +47,11 @@ comentarios de revisión, fichas, bibliografía IEEE y PDF automático.
 Esta plantilla es un TFG de **ejemplo** completo. Para convertirla en el
 tuyo solo tocas **tus** datos y **tus** textos; el diseño (`uniovitfg.cls`)
 no hace falta tocarlo.
+### 1. Crea tu propio repositorio emplando la plantilla.
 
-### 1. Tus datos — `main.tex`
+Pulsa en `Use this Template` y crea tu repositorio **PRIVADO** siguiendo el convenio de nombre `{TFG|TFM}<AÑO(YY)>-{EII|EPI}-<APELLIDO><NOMBRE>`. Pon una descripción adecuada al mismo y compártelo con **TODOS** tus tutores.
+
+### 2. Tus datos — `main.tex`
 
 Todo está al principio del fichero, en la sección *"THESIS METADATA"*:
 
@@ -74,7 +77,7 @@ Todo está al principio del fichero, en la sección *"THESIS METADATA"*:
 > `PerezGomezMariaJose`). Detalles en
 > [PDF automático](#pdf-automático-con-github-actions).
 
-### 2. Tus textos
+### 3. Tus textos
 
 | Fichero | Qué hacer |
 |---|---|
@@ -84,7 +87,7 @@ Todo está al principio del fichero, en la sección *"THESIS METADATA"*:
 | `chapters/ch01_…ch09_*.tex` | Sustituye el texto de ejemplo por el tuyo. Mantén los `\chapter`/`\section` y borra lo que no necesites |
 | `bibliography.bib` | Sustituye las 5 referencias de ejemplo por las tuyas (`\cite{clave}`) |
 
-### 3. Limpieza del ejemplo (antes de entregar)
+### 4. Limpieza del ejemplo (antes de entregar)
 
 - Borra los marcadores de demostración `\TODO`, `\augusto`, `\student`… de
   `chapters/ch01_general_description.tex` (o quita las opciones del
@@ -95,7 +98,7 @@ Todo está al principio del fichero, en la sección *"THESIS METADATA"*:
 - Sustituye `img/logos/company_logo_placeholder.png` por el logo real de la
   empresa, o bórralo si no hay tutor de empresa.
 
-### 4. Compila y revisa
+### 5. Compila y revisa
 
 Mira [Compilar](#compilar) y comprueba el PDF completo: portada, índices,
 numeración de páginas y bibliografía.
